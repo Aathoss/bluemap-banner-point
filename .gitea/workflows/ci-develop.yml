@@ -89,7 +89,7 @@ jobs:
           echo "✅ Packaging réussi"
 
       - name: Upload des artefacts de build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         if: success()
         with:
           name: build-artifacts

@@ -122,7 +122,7 @@ jobs:
           echo "✅ Contenu du JAR vérifié"
 
       - name: Upload des artefacts de release
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: release-artifacts
           path: |
@@ -138,7 +138,7 @@ jobs:
           echo "✅ Checksum créé"
 
       - name: Upload du checksum
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: release-checksums
           path: target/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar.sha256
