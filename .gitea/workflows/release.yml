@@ -165,7 +165,7 @@ jobs:
 
           # Trouver le JAR principal (celui généré par Maven avec la version du pom.xml)
           # Exclure les fichiers "original-*" et "*-shaded"
-          MAIN_JAR=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
+          MAIN_JAR=$(ls -t *.jar | grep --invert-match "original-" | grep --invert-match "-shaded" | head -1)
 
           if [ -z "$MAIN_JAR" ]; then
             echo "❌ Aucun JAR principal trouvé"
@@ -178,23 +178,23 @@ jobs:
           cp "$MAIN_JAR" "${{ env.PROJECT_NAME }}-latest.jar"
           echo "✅ Lien latest créé: ${{ env.PROJECT_NAME }}-latest.jar"
 
-      - name: Vérification du contenu du JAR
+            - name: Vérification du contenu du JAR
         run: |
           echo "🔍 Vérification du contenu du JAR..."
           cd target
           # Chercher le JAR principal
-          JAR_FILE=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
+          JAR_FILE=$(ls -t *.jar | grep --invert-match "original-" | grep --invert-match "-shaded" | head -1)
 
           echo "🔍 Vérification du JAR: $JAR_FILE"
           jar -tf "$JAR_FILE" | head -20
           echo "✅ Contenu du JAR vérifié"
 
-      - name: Création du checksum
+            - name: Création du checksum
         run: |
           echo "🔐 Création du checksum..."
           cd target
           # Chercher le JAR principal
-          JAR_FILE=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
+          JAR_FILE=$(ls -t *.jar | grep --invert-match "original-" | grep --invert-match "-shaded" | head -1)
 
           echo "🔐 Création du checksum pour: $JAR_FILE"
           sha256sum "$JAR_FILE" > "$JAR_FILE.sha256"
