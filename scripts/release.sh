@@ -89,13 +89,13 @@ update_pom_version() {
 
     log_info "Mise à jour de la version dans pom.xml..."
 
-    # Utiliser sed pour mettre à jour la version
+    # Utiliser sed pour mettre à jour UNIQUEMENT la version du projet (pas les plugins)
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS
-        sed -i '' "s/<version>.*<\/version>/<version>$version<\/version>/" pom.xml
+        # macOS - cibler spécifiquement la version du projet
+        sed -i '' "/<artifactId>bluemap-banner-point<\/artifactId>/,/<version>/s/<version>.*<\/version>/<version>$version<\/version>/" pom.xml
     else
-        # Linux
-        sed -i "s/<version>.*<\/version>/<version>$version<\/version>/" pom.xml
+        # Linux - cibler spécifiquement la version du projet
+        sed -i "/<artifactId>bluemap-banner-point<\/artifactId>/,/<version>/s/<version>.*<\/version>/<version>$version<\/version>/" pom.xml
     fi
 
     log_success "Version mise à jour dans pom.xml"
