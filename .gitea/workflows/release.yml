@@ -1,0 +1,178 @@
+name: Release - Build et Package
+run-name: Release - Build et Package
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "release-*"
+
+env:
+  PROJECT_NAME: bluemap-banner-point
+  JAVA_VERSION: 17
+
+jobs:
+  # Job de notification de début de release
+  notify-release-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extraction de la version
+        id: version
+        run: |
+          # Extraire la version du tag (v1.2.3 -> 1.2.3)
+          VERSION=${GITEA_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          VERSION=${VERSION#release-}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION"
+
+      - name: Notification de début de release
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "🚀 Début de la release",
+                "description": "**Projet:** ${{ env.PROJECT_NAME }}\n**Version:** ${{ steps.version.outputs.version }}\n**Tag:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}",
+                "color": 15844367,
+                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+              }]
+            }'
+          fi
+
+  # Job principal de build et packaging
+  build-release:
+    runs-on: ubuntu-latest
+    needs: notify-release-start
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Extraction de la version
+        id: version
+        run: |
+          # Extraire la version du tag (v1.2.3 -> 1.2.3)
+          VERSION=${GITEA_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          VERSION=${VERSION#release-}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION"
+
+      - name: Configuration Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Vérification des traductions
+        run: |
+          echo "🔍 Vérification des clés de traduction..."
+          python3 check_translations.py
+          if [ $? -ne 0 ]; then
+            echo "❌ Erreur dans les traductions"
+            exit 1
+          fi
+          echo "✅ Traductions OK"
+
+      - name: Build du package final
+        run: |
+          echo "📦 Build du package final..."
+          mvn clean package -DskipTests
+          if [ $? -ne 0 ]; then
+            echo "❌ Erreur de build"
+            exit 1
+          fi
+          echo "✅ Build réussi"
+
+      - name: Renommage du JAR avec version
+        run: |
+          echo "🏷️ Renommage du JAR avec version..."
+          cd target
+          # Trouver le JAR généré
+          JAR_FILE=$(ls *.jar | head -1)
+          if [ -z "$JAR_FILE" ]; then
+            echo "❌ Aucun fichier JAR trouvé"
+            exit 1
+          fi
+
+          # Renommer avec la version
+          NEW_NAME="${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar"
+          mv "$JAR_FILE" "$NEW_NAME"
+          echo "✅ JAR renommé: $NEW_NAME"
+
+          # Créer un lien vers latest
+          cp "$NEW_NAME" "${{ env.PROJECT_NAME }}-latest.jar"
+          echo "✅ Lien latest créé"
+
+      - name: Vérification du contenu du JAR
+        run: |
+          echo "🔍 Vérification du contenu du JAR..."
+          cd target
+          jar -tf "${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar" | head -20
+          echo "✅ Contenu du JAR vérifié"
+
+      - name: Upload des artefacts de release
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            target/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar
+            target/${{ env.PROJECT_NAME }}-latest.jar
+          retention-days: 90
+
+      - name: Création du checksum
+        run: |
+          echo "🔐 Création du checksum..."
+          cd target
+          sha256sum "${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar" > "${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar.sha256"
+          echo "✅ Checksum créé"
+
+      - name: Upload du checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-checksums
+          path: target/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar.sha256
+          retention-days: 90
+
+  # Job de notification de fin de release
+  notify-release-end:
+    runs-on: ubuntu-latest
+    needs: build-release
+    if: always()
+    steps:
+      - name: Extraction de la version
+        id: version
+        run: |
+          VERSION=${GITEA_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          VERSION=${VERSION#release-}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Notification de fin de release
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            if [ "${{ needs.build-release.result }}" == "success" ]; then
+              STATUS="✅ Release réussie"
+              COLOR="3066993"
+              EMOJI="🎉"
+              DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Version:** ${{ steps.version.outputs.version }}\n**Tag:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n\n📦 Package JAR créé avec succès"
+            else
+              STATUS="❌ Release échouée"
+              COLOR="15158332"
+              EMOJI="💥"
+              DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Version:** ${{ steps.version.outputs.version }}\n**Tag:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n\n❌ Erreur lors de la création du package"
+            fi
+
+            curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "'"$EMOJI $STATUS"'",
+                "description": "'"$DESCRIPTION"'",
+                "color": '"$COLOR"',
+                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+              }]
+            }'
+          fi

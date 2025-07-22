@@ -1,0 +1,122 @@
+name: CI - Développement
+run-name: CI - Développement
+
+on:
+  push:
+    branches:
+      - develop
+      - dev
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  PROJECT_NAME: bluemap-banner-point
+  JAVA_VERSION: 17
+
+jobs:
+  # Job de notification Discord
+  notify-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notification de début
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "🚀 Début du build CI",
+                "description": "**Projet:** ${{ env.PROJECT_NAME }}\n**Branche:** ${{ gitea.ref_name }}\n**Commit:** ${{ gitea.sha }}\n**Auteur:** ${{ gitea.actor }}",
+                "color": 3447003,
+                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+              }]
+            }'
+          fi
+
+  # Job principal de build et tests
+  build-and-test:
+    runs-on: ubuntu-latest
+    needs: notify-start
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Vérification des traductions
+        run: |
+          echo "🔍 Vérification des clés de traduction..."
+          python3 check_translations.py
+          if [ $? -ne 0 ]; then
+            echo "❌ Erreur dans les traductions"
+            exit 1
+          fi
+          echo "✅ Traductions OK"
+
+      - name: Compilation et tests
+        run: |
+          echo "🔨 Compilation du projet..."
+          mvn clean compile
+          if [ $? -ne 0 ]; then
+            echo "❌ Erreur de compilation"
+            exit 1
+          fi
+          echo "✅ Compilation réussie"
+
+      - name: Build sans tests (pour vérifier le packaging)
+        run: |
+          echo "📦 Test de packaging..."
+          mvn package -DskipTests
+          if [ $? -ne 0 ]; then
+            echo "❌ Erreur de packaging"
+            exit 1
+          fi
+          echo "✅ Packaging réussi"
+
+      - name: Upload des artefacts de build
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: build-artifacts
+          path: |
+            target/*.jar
+            target/classes/
+          retention-days: 7
+
+  # Job de notification de fin
+  notify-end:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: always()
+    steps:
+      - name: Notification de fin
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            if [ "${{ needs.build-and-test.result }}" == "success" ]; then
+              STATUS="✅ Succès"
+              COLOR="3066993"
+              EMOJI="🎉"
+            else
+              STATUS="❌ Échec"
+              COLOR="15158332"
+              EMOJI="💥"
+            fi
+
+            curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "'"$EMOJI $STATUS du build CI"'",
+                "description": "**Projet:** ${{ env.PROJECT_NAME }}\n**Branche:** ${{ gitea.ref_name }}\n**Commit:** ${{ gitea.sha }}\n**Auteur:** ${{ gitea.actor }}",
+                "color": '"$COLOR"',
+                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+              }]
+            }'
+          fi

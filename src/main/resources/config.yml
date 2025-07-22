@@ -1,0 +1,29 @@
+# BlueMap Banner Point Configuration
+# Plugin to automatically add BlueMap markers when placing banners
+
+# Marker configuration
+marker:
+  # Notify the player when the marker is placed
+  notify: true
+
+  # Don't place a marker if the player is sneaking
+  sneaky: true
+
+  # Marker visibility
+  visible: true
+
+  # Default marker name (when no custom name is provided)
+  default-name: "Bannière"
+
+  # Custom marker name template (when a custom name is provided)
+  # Available placeholders: {banner-name}
+  custom-name: "{banner-name}"
+
+# Automatically remove markers when the banner is destroyed
+auto-remove: true
+
+# Debug mode (displays more information in the console)
+debug: false
+
+# Plugin language (fr = french, en = english)
+language: "en"

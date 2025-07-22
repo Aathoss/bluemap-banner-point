@@ -1,0 +1,203 @@
+# English translation file for BlueMap Banner Point
+
+# Plugin general messages
+plugin:
+  enabled: "BlueMap Banner Point successfully enabled!"
+  disabled: "BlueMap Banner Point disabled!"
+  title: "=== BlueMap Banner Point ==="
+
+# Error messages
+errors:
+  permission: "You don't have permission to use this command."
+  missing_translation: "[MISSING TRANSLATION: {0}]"
+  language_not_found: "Language '{0}' not found, using French as default"
+  load_language_error: "Unable to load language file {0}: {1}"
+
+# Commands
+commands:
+  help:
+    title: "=== BlueMap Banner Point ==="
+    format: "§e{0} §7- {1}"
+
+  # Reload command
+  reload:
+    name: "reload"
+    description: "Reloads the configuration"
+    usage: "/bmp reload"
+    success: "Configuration reloaded successfully!"
+    log: "Configuration reloaded by {0}"
+
+  # Info command
+  info:
+    name: "info"
+    description: "Displays plugin information"
+    usage: "/bmp info"
+    title: "=== BlueMap Banner Point Information ==="
+    version: "Version: §7{0}"
+    author: "Author: §7{0}"
+    debug_mode: "Debug mode: §7{0}"
+    auto_remove: "Auto removal: §7{0}"
+    enabled: "Enabled"
+    disabled: "Disabled"
+    enabled_f: "Enabled"
+    disabled_f: "Disabled"
+
+  # Debug command
+  debug:
+    name: "debug"
+    description: "Enables/disables debug mode"
+    usage: "/bmp debug <on|off>"
+    usage_error: "Usage: /bmp debug <on|off>"
+    enabled: "Debug mode enabled (restart server to apply)"
+    disabled: "Debug mode disabled (restart server to apply)"
+
+  # Markers command
+  markers:
+    name: "markers"
+    description: "Marker management"
+    usage: "/bmp markers <list|count|player|world>"
+    help:
+      title: "=== Marker Management ==="
+      list: "§e/bmp markers list §7- Lists all markers"
+      count: "§e/bmp markers count §7- Shows marker count"
+      player: "§e/bmp markers player <player> §7- Lists player's markers"
+      world: "§e/bmp markers world <world> §7- Lists world's markers"
+    unknown_subcommand: "Unknown subcommand. Use /bmp markers to see options."
+    player_usage: "Usage: /bmp markers player <player>"
+    world_usage: "Usage: /bmp markers world <world>"
+    no_markers: "No markers found."
+    all_markers_title: "=== All Markers ({0}) ==="
+    marker_format: "§e📍 {0} §7- {1} §8({2} {3}, {4}, {5})"
+    stats_title: "=== Marker Statistics ==="
+    total: "Total: §7{0} markers"
+    by_world: "By world:"
+    world_format: "  §7- {0}: {1} markers"
+    player_markers_title: "=== {0}'s Markers ({1}) ==="
+    player_marker_format: "§e📍 {0} §8({1} {2}, {3}, {4})"
+    world_markers_title: "=== World {0} Markers ({1}) ==="
+    world_marker_format: "§e📍 {0} §7- {1} §8({2}, {3}, {4})"
+    no_player_markers: "No markers found for player {0}"
+    no_world_markers: "No markers found for world {0}"
+
+  # Save command
+  save:
+    name: "save"
+    description: "Saves markers"
+    usage: "/bmp save"
+    success: "Markers saved successfully!"
+
+  # Reload-markers command
+  reload_markers:
+    name: "reload-markers"
+    description: "Reloads markers from file"
+    usage: "/bmp reload-markers"
+    success: "Markers reloaded successfully!"
+
+  # Clear-markers command
+  clear_markers:
+    name: "clear-markers"
+    description: "Removes all markers"
+    usage: "/bmp clear-markers"
+    success: "All markers have been removed!"
+
+  # Language command
+  language:
+    name: "language"
+    description: "Changes plugin language"
+    usage: "/bmp language <fr|en>"
+    current: "Current language: {0}"
+    changed: "Language changed to: {0}"
+    invalid: "Invalid language. Use 'fr' or 'en'."
+
+# Debug messages
+debug:
+  banner_disabled: "🚫 Disabled banner detected: {0}"
+  banner_disabled_info: "   No marker will be created for this banner"
+  banner_detection: "🎨 Banner detection:"
+  banner_type: "   Type: {0}"
+  banner_name: "   Name: {0}"
+  banner_icon: "   Icon: {0}"
+  banner_player: "   Player: {0}"
+  banner_position: "   Position: {0}"
+  banner_placed: "✅ Banner placed by {0} at {1} with icon: {2}"
+  banner_destroyed: "Banner destroyed at {0}"
+  banner_destroyed_no_marker: "Banner destroyed at {0} (no marker to remove)"
+  marker_added: "Marker added for {0} at {1} with icon: {2}"
+  marker_removed: "Marker removed at {0}"
+  marker_updated: "Marker name and icon updated for {0} with icon: {1}"
+  marker_created: "Marker created with icon: {0}"
+  markers_saved: "✅ {0} markers saved in {1}"
+  no_markers_file: "📁 No markers file found, creating new file."
+  markers_loaded: "🗺️ Loading {0} banner markers..."
+  marker_loaded: "  📍 {0} - {1} ({2} {3}, {4}, {5})"
+  markers_loaded_success: "✅ {0}/{1} markers have been loaded successfully!"
+  markers_file_empty: "⚠️ Markers file is empty or corrupted."
+  no_markers_to_remove: "🗺️ No banner markers to remove from BlueMap."
+  markers_removing: "🗺️ Removing {0} markers from BlueMap (keeping data in file)..."
+  marker_removing: "  🗑️ {0} - {1} ({2} {3}, {4}, {5})"
+  markers_removed: "✅ Markers removed from BlueMap, data kept for next startup!"
+  no_markers_to_clear: "🗺️ No markers to remove."
+  markers_clearing: "🗑️ Permanently removing {0} markers..."
+  markers_cleared: "✅ All markers have been permanently removed!"
+  all_markers_cleared: "✅ All markers have been permanently removed!"
+  empty_markers_file: "⚠️ Markers file is empty or corrupted."
+  cleanup_completed: "✅ Cleanup completed successfully!"
+  marker_added_to_bluemap: "Marker added to BlueMap: {0} in {1} at ({2}, {3}, {4})"
+  marker_removed_from_bluemap: "Marker removed from BlueMap: {0} in {1}"
+  markers_added_to_bluemap_on_enable: "✅ {0} markers added to BlueMap on enable"
+  markers_loaded_waiting_bluemap: "⏳ {0} markers loaded, waiting for BlueMap..."
+  markers_cleared_from_map: "Markers cleared from map: {0}"
+  markers_reloaded: "Markers reloaded: {0} markers"
+  indexes_rebuilt: "Indexes rebuilt: {0} players, {1} worlds"
+
+# System error messages
+system:
+  marker_add_error: "Error adding marker: {0}"
+  marker_remove_error: "Error removing marker: {0}"
+  marker_update_error: "Error updating marker: {0}"
+  markers_save_error: "❌ Error saving markers: {0}"
+  marker_load_error: "⚠️ Unable to load marker at {0}: {1}"
+  marker_player_load_error: "⚠️ Unable to load marker for {0} at {1} {2}, {3}, {4}: {5}"
+  markers_load_error: "❌ Error loading markers: {0}"
+  markers_parse_error: "❌ Error parsing markers file: {0}"
+  cleanup_error: "❌ Error during cleanup: {0}"
+  clear_markers_error: "❌ Error clearing markers: {0}"
+  # BlueMap messages
+  bluemap_enabled: "BlueMap detected and initialized successfully"
+  bluemap_disabled: "BlueMap disabled"
+  bluemap_not_available: "BlueMap is not available"
+  bluemap_optional_mode: "ℹ️ Markers will be saved locally and added to BlueMap when available"
+  map_not_found: "Map not found for world: {0}"
+  bluemap_marker_error: "Error adding marker to BlueMap: {0}"
+  bluemap_remove_error: "Error removing marker from BlueMap: {0}"
+  bluemap_clear_error: "Error clearing markers from BlueMap: {0}"
+  save_error: "Error during save: {0}"
+  load_error: "Error during load: {0}"
+  marker_data_error: "Error in marker data: {0}"
+  markers_file_deleted: "Markers file deleted"
+  markers_file_delete_error: "Unable to delete markers file"
+
+# Configuration
+config:
+  markers:
+    notify:
+      placed: "Banner placed on the dynmap."
+      removed: "Banner removed from the dynmap."
+    category_name: "Banner"
+    label_name: "Banner of {0}"
+    # Template for markers without custom name
+    # Parameters: {0} = player name, {1} = banner name (empty), {2} = icon name, {3} = X coordinate, {4} = Y coordinate, {5} = Z coordinate, {6} = world, {7} = date (format en)
+    detail_simple: |
+      <div style="font-family: Arial, sans-serif; padding: 4px; line-height: 1.4; white-space: nowrap;">
+        <div style="color: #FFFFFF; font-weight: bold; margin-bottom: 4px;">Banner of {0}</div>
+        <div style="color: #CCCCCC; white-space: nowrap;">x: <span style="color: #FFFFFF;">{3}</span> y: <span style="color: #FFFFFF;">{4}</span> z: <span style="color: #FFFFFF;">{5}</span></div>
+      </div>
+
+    # Template for markers with custom name
+    # Parameters: {0} = player name, {1} = banner name, {2} = icon name, {3} = X coordinate, {4} = Y coordinate, {5} = Z coordinate, {6} = world, {7} = date (format en)
+    detail_with_name: |
+      <div style="font-family: Arial, sans-serif; padding: 4px; line-height: 1.4; white-space: nowrap;">
+        <div style="color: #FFFFFF; font-weight: bold; margin-bottom: 4px;">Banner of {0}</div>
+        <div style="color: #CCCCCC; margin-bottom: 4px; white-space: normal; word-wrap: break-word;">{1}</div>
+        <div style="color: #CCCCCC; white-space: nowrap;">x: <span style="color: #FFFFFF;">{3}</span> y: <span style="color: #FFFFFF;">{4}</span> z: <span style="color: #FFFFFF;">{5}</span></div>
+      </div>

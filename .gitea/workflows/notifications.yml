@@ -1,0 +1,139 @@
+name: Notifications Discord
+run-name: Notifications Discord
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - dev
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+  issues:
+    types: [opened, closed, reopened]
+  release:
+    types: [published, edited, deleted]
+
+env:
+  PROJECT_NAME: bluemap-banner-point
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notification d'événement
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            # Déterminer le type d'événement et les informations
+            EVENT_TYPE="${{ gitea.event_name }}"
+
+            case "$EVENT_TYPE" in
+              "push")
+                if [[ "${{ gitea.ref }}" == refs/tags/* ]]; then
+                  TITLE="🏷️ Nouveau tag créé"
+                  COLOR="15844367"
+                  EMOJI="🏷️"
+                  VERSION=${GITEA_REF#refs/tags/}
+                  VERSION=${VERSION#v}
+                  VERSION=${VERSION#release-}
+                  DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Tag:** ${{ gitea.ref_name }}\n**Version:** $VERSION\n**Auteur:** ${{ gitea.actor }}\n**Commit:** ${{ gitea.sha }}"
+                else
+                  TITLE="📝 Push sur la branche"
+                  COLOR="3447003"
+                  EMOJI="📝"
+                  DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Branche:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n**Commit:** ${{ gitea.sha }}\n**Message:** ${{ gitea.head_commit.message }}"
+                fi
+                ;;
+              "pull_request")
+                case "${{ gitea.event.action }}" in
+                  "opened")
+                    TITLE="🔀 Nouvelle Pull Request"
+                    COLOR="3447003"
+                    EMOJI="🔀"
+                    ;;
+                  "synchronize")
+                    TITLE="🔄 Pull Request mise à jour"
+                    COLOR="15844367"
+                    EMOJI="🔄"
+                    ;;
+                  "reopened")
+                    TITLE="🔄 Pull Request réouverte"
+                    COLOR="15844367"
+                    EMOJI="🔄"
+                    ;;
+                  "closed")
+                    if [ "${{ gitea.event.pull_request.merged }}" == "true" ]; then
+                      TITLE="✅ Pull Request fusionnée"
+                      COLOR="3066993"
+                      EMOJI="✅"
+                    else
+                      TITLE="❌ Pull Request fermée"
+                      COLOR="15158332"
+                      EMOJI="❌"
+                    fi
+                    ;;
+                esac
+                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**PR:** #${{ gitea.event.pull_request.number }} - ${{ gitea.event.pull_request.title }}\n**Auteur:** ${{ gitea.actor }}\n**Branche:** ${{ gitea.event.pull_request.head.ref }} → ${{ gitea.event.pull_request.base.ref }}"
+                ;;
+              "issues")
+                case "${{ gitea.event.action }}" in
+                  "opened")
+                    TITLE="🐛 Nouvelle issue"
+                    COLOR="15158332"
+                    EMOJI="🐛"
+                    ;;
+                  "closed")
+                    TITLE="✅ Issue fermée"
+                    COLOR="3066993"
+                    EMOJI="✅"
+                    ;;
+                  "reopened")
+                    TITLE="🔄 Issue réouverte"
+                    COLOR="15844367"
+                    EMOJI="🔄"
+                    ;;
+                esac
+                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Issue:** #${{ gitea.event.issue.number }} - ${{ gitea.event.issue.title }}\n**Auteur:** ${{ gitea.actor }}\n**Labels:** ${{ join(gitea.event.issue.labels.*.name, ', ') }}"
+                ;;
+              "release")
+                case "${{ gitea.event.action }}" in
+                  "published")
+                    TITLE="🚀 Nouvelle release publiée"
+                    COLOR="3066993"
+                    EMOJI="🚀"
+                    ;;
+                  "edited")
+                    TITLE="✏️ Release modifiée"
+                    COLOR="15844367"
+                    EMOJI="✏️"
+                    ;;
+                  "deleted")
+                    TITLE="🗑️ Release supprimée"
+                    COLOR="15158332"
+                    EMOJI="🗑️"
+                    ;;
+                esac
+                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Release:** ${{ gitea.event.release.tag_name }}\n**Titre:** ${{ gitea.event.release.name }}\n**Auteur:** ${{ gitea.actor }}"
+                ;;
+              *)
+                TITLE="ℹ️ Événement"
+                COLOR="3447003"
+                EMOJI="ℹ️"
+                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Événement:** $EVENT_TYPE\n**Auteur:** ${{ gitea.actor }}"
+                ;;
+            esac
+
+            curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "'"$EMOJI $TITLE"'",
+                "description": "'"$DESCRIPTION"'",
+                "color": '"$COLOR"',
+                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'",
+                "footer": {
+                  "text": "BlueMap Banner Point"
+                }
+              }]
+            }'
+          fi

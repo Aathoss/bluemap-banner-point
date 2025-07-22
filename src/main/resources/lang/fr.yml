@@ -1,0 +1,203 @@
+# Fichier de traduction français pour BlueMap Banner Point
+
+# Messages généraux du plugin
+plugin:
+  enabled: "BlueMap Banner Point activé avec succès !"
+  disabled: "BlueMap Banner Point désactivé !"
+  title: "=== BlueMap Banner Point ==="
+
+# Messages d'erreur
+errors:
+  permission: "Vous n'avez pas la permission d'utiliser cette commande."
+  missing_translation: "[TRADUCTION MANQUANTE: {0}]"
+  language_not_found: "Langue '{0}' non trouvée, utilisation du français par défaut"
+  load_language_error: "Impossible de charger le fichier de langue {0}: {1}"
+
+# Commandes
+commands:
+  help:
+    title: "=== BlueMap Banner Point ==="
+    format: "§e{0} §7- {1}"
+
+  # Commande reload
+  reload:
+    name: "reload"
+    description: "Recharge la configuration"
+    usage: "/bmp reload"
+    success: "Configuration rechargée avec succès !"
+    log: "Configuration rechargée par {0}"
+
+  # Commande info
+  info:
+    name: "info"
+    description: "Affiche les informations du plugin"
+    usage: "/bmp info"
+    title: "=== Informations BlueMap Banner Point ==="
+    version: "Version: §7{0}"
+    author: "Auteur: §7{0}"
+    debug_mode: "Mode debug: §7{0}"
+    auto_remove: "Suppression auto: §7{0}"
+    enabled: "Activé"
+    disabled: "Désactivé"
+    enabled_f: "Activée"
+    disabled_f: "Désactivée"
+
+  # Commande debug
+  debug:
+    name: "debug"
+    description: "Active/désactive le mode debug"
+    usage: "/bmp debug <on|off>"
+    usage_error: "Usage: /bmp debug <on|off>"
+    enabled: "Mode debug activé (redémarrez le serveur pour appliquer)"
+    disabled: "Mode debug désactivé (redémarrez le serveur pour appliquer)"
+
+  # Commande markers
+  markers:
+    name: "markers"
+    description: "Gestion des marqueurs"
+    usage: "/bmp markers <list|count|player|world>"
+    help:
+      title: "=== Gestion des Marqueurs ==="
+      list: "§e/bmp markers list §7- Liste tous les marqueurs"
+      count: "§e/bmp markers count §7- Affiche le nombre de marqueurs"
+      player: "§e/bmp markers player <joueur> §7- Liste les marqueurs d'un joueur"
+      world: "§e/bmp markers world <monde> §7- Liste les marqueurs d'un monde"
+    unknown_subcommand: "Sous-commande inconnue. Utilisez /bmp markers pour voir les options."
+    player_usage: "Usage: /bmp markers player <joueur>"
+    world_usage: "Usage: /bmp markers world <monde>"
+    no_markers: "Aucun marqueur trouvé."
+    all_markers_title: "=== Tous les Marqueurs ({0}) ==="
+    marker_format: "§e📍 {0} §7- {1} §8({2} {3}, {4}, {5})"
+    stats_title: "=== Statistiques des Marqueurs ==="
+    total: "Total: §7{0} marqueurs"
+    by_world: "Par monde:"
+    world_format: "  §7- {0}: {1} marqueurs"
+    player_markers_title: "=== Marqueurs de {0} ({1}) ==="
+    player_marker_format: "§e📍 {0} §8({1} {2}, {3}, {4})"
+    world_markers_title: "=== Marqueurs du monde {0} ({1}) ==="
+    world_marker_format: "§e📍 {0} §7- {1} §8({2}, {3}, {4})"
+    no_player_markers: "Aucun marqueur trouvé pour le joueur {0}"
+    no_world_markers: "Aucun marqueur trouvé pour le monde {0}"
+
+  # Commande save
+  save:
+    name: "save"
+    description: "Sauvegarde les marqueurs"
+    usage: "/bmp save"
+    success: "Marqueurs sauvegardés avec succès !"
+
+  # Commande reload-markers
+  reload_markers:
+    name: "reload-markers"
+    description: "Recharge les marqueurs depuis le fichier"
+    usage: "/bmp reload-markers"
+    success: "Marqueurs rechargés avec succès !"
+
+  # Commande clear-markers
+  clear_markers:
+    name: "clear-markers"
+    description: "Supprime tous les marqueurs"
+    usage: "/bmp clear-markers"
+    success: "Tous les marqueurs ont été supprimés !"
+
+  # Commande language
+  language:
+    name: "language"
+    description: "Change la langue du plugin"
+    usage: "/bmp language <fr|en>"
+    current: "Langue actuelle: {0}"
+    changed: "Langue changée vers: {0}"
+    invalid: "Langue invalide. Utilisez 'fr' ou 'en'."
+
+# Messages de debug
+debug:
+  banner_disabled: "🚫 Bannière désactivée détectée: {0}"
+  banner_disabled_info: "   Aucun marqueur ne sera créé pour cette bannière"
+  banner_detection: "🎨 Détection de bannière:"
+  banner_type: "   Type: {0}"
+  banner_name: "   Nom: {0}"
+  banner_icon: "   Icône: {0}"
+  banner_player: "   Joueur: {0}"
+  banner_position: "   Position: {0}"
+  banner_placed: "✅ Bannière placée par {0} à {1} avec icône: {2}"
+  banner_destroyed: "Bannière détruite à {0}"
+  banner_destroyed_no_marker: "Bannière détruite à {0} (aucun marqueur à supprimer)"
+  marker_added: "Marqueur ajouté pour {0} à {1} avec icône: {2}"
+  marker_removed: "Marqueur supprimé à {0}"
+  marker_updated: "Nom et icône du marqueur mis à jour pour {0} avec icône: {1}"
+  marker_created: "Marqueur créé avec icône: {0}"
+  markers_saved: "✅ {0} marqueurs sauvegardés dans {1}"
+  no_markers_file: "📁 Aucun fichier de marqueurs trouvé, création d'un nouveau fichier."
+  markers_loaded: "🗺️ Chargement de {0} marqueurs de bannières..."
+  marker_loaded: "  📍 {0} - {1} ({2} {3}, {4}, {5})"
+  markers_loaded_success: "✅ {0}/{1} marqueurs ont été chargés avec succès !"
+  markers_file_empty: "⚠️ Le fichier de marqueurs est vide ou corrompu."
+  no_markers_to_remove: "🗺️ Aucun marqueur de bannière à supprimer de BlueMap."
+  markers_removing: "🗺️ Suppression de {0} marqueurs de BlueMap (conservation en fichier)..."
+  marker_removing: "  🗑️ {0} - {1} ({2} {3}, {4}, {5})"
+  markers_removed: "✅ Marqueurs supprimés de BlueMap, données conservées pour le prochain démarrage !"
+  no_markers_to_clear: "🗺️ Aucun marqueur à supprimer."
+  markers_clearing: "🗑️ Suppression définitive de {0} marqueurs..."
+  markers_cleared: "✅ Tous les marqueurs ont été supprimés définitivement !"
+  all_markers_cleared: "✅ Tous les marqueurs ont été supprimés définitivement !"
+  empty_markers_file: "⚠️ Le fichier de marqueurs est vide ou corrompu."
+  cleanup_completed: "✅ Nettoyage terminé avec succès !"
+  marker_added_to_bluemap: "Marqueur ajouté à BlueMap: {0} dans {1} à ({2}, {3}, {4})"
+  marker_removed_from_bluemap: "Marqueur supprimé de BlueMap: {0} dans {1}"
+  markers_added_to_bluemap_on_enable: "✅ {0} marqueurs ajoutés à BlueMap lors de l'activation"
+  markers_loaded_waiting_bluemap: "⏳ {0} marqueurs chargés, en attente de BlueMap..."
+  markers_cleared_from_map: "Marqueurs supprimés de la carte: {0}"
+  markers_reloaded: "Marqueurs rechargés: {0} marqueurs"
+  indexes_rebuilt: "Index reconstruits: {0} joueurs, {1} mondes"
+
+# Messages d'erreur système
+system:
+  marker_add_error: "Erreur lors de l'ajout du marqueur: {0}"
+  marker_remove_error: "Erreur lors de la suppression du marqueur: {0}"
+  marker_update_error: "Erreur lors de la mise à jour du marqueur: {0}"
+  markers_save_error: "❌ Erreur lors de la sauvegarde des marqueurs: {0}"
+  marker_load_error: "⚠️ Impossible de charger le marqueur à {0}: {1}"
+  marker_player_load_error: "⚠️ Impossible de charger le marqueur pour {0} à {1} {2}, {3}, {4}: {5}"
+  markers_load_error: "❌ Erreur lors du chargement des marqueurs: {0}"
+  markers_parse_error: "❌ Erreur lors du parsing du fichier de marqueurs: {0}"
+  cleanup_error: "❌ Erreur lors du nettoyage: {0}"
+  clear_markers_error: "❌ Erreur lors de la suppression des marqueurs: {0}"
+  # Messages BlueMap
+  bluemap_enabled: "BlueMap détecté et initialisé avec succès"
+  bluemap_disabled: "BlueMap désactivé"
+  bluemap_not_available: "BlueMap n'est pas disponible"
+  bluemap_optional_mode: "ℹ️ Les marqueurs seront sauvegardés localement et ajoutés à BlueMap quand il sera disponible"
+  map_not_found: "Carte non trouvée pour le monde: {0}"
+  bluemap_marker_error: "Erreur lors de l'ajout du marqueur à BlueMap: {0}"
+  bluemap_remove_error: "Erreur lors de la suppression du marqueur de BlueMap: {0}"
+  bluemap_clear_error: "Erreur lors du nettoyage des marqueurs de BlueMap: {0}"
+  save_error: "Erreur lors de la sauvegarde: {0}"
+  load_error: "Erreur lors du chargement: {0}"
+  marker_data_error: "Erreur dans les données du marqueur: {0}"
+  markers_file_deleted: "Fichier de marqueurs supprimé"
+  markers_file_delete_error: "Impossible de supprimer le fichier de marqueurs"
+
+# Configuration
+config:
+  markers:
+    notify:
+      placed: "Bannière placée sur la dynmap."
+      removed: "Bannière supprimée de la dynmap."
+    category_name: "Bannière"
+    label_name: "Bannière de {0}"
+    # Template pour les marqueurs sans nom personnalisé
+    # Parameters: {0} = nom du joueur, {1} = nom de la bannière (vide), {2} = nom de l'icône, {3} = coordonnée X, {4} = coordonnée Y, {5} = coordonnée Z, {6} = monde, {7} = date (format français)
+    detail_simple: |
+      <div style="font-family: Arial, sans-serif; padding: 4px; line-height: 1.4; white-space: nowrap;">
+        <div style="color: #FFFFFF; font-weight: bold; margin-bottom: 4px;">Bannière de {0}</div>
+        <div style="color: #CCCCCC; white-space: nowrap;">x: <span style="color: #FFFFFF;">{3}</span> y: <span style="color: #FFFFFF;">{4}</span> z: <span style="color: #FFFFFF;">{5}</span></div>
+      </div>
+
+    # Template pour les marqueurs avec nom personnalisé
+    # Parameters: {0} = nom du joueur, {1} = nom de la bannière, {2} = nom de l'icône, {3} = coordonnée X, {4} = coordonnée Y, {5} = coordonnée Z, {6} = monde, {7} = date (format français)
+    detail_with_name: |
+      <div style="font-family: Arial, sans-serif; padding: 4px; line-height: 1.4; white-space: nowrap;">
+        <div style="color: #FFFFFF; font-weight: bold; margin-bottom: 4px;">Bannière de {0}</div>
+        <div style="color: #CCCCCC; margin-bottom: 4px; white-space: normal; word-wrap: break-word;">{1}</div>
+        <div style="color: #CCCCCC; white-space: nowrap;">x: <span style="color: #FFFFFF;">{3}</span> y: <span style="color: #FFFFFF;">{4}</span> z: <span style="color: #FFFFFF;">{5}</span></div>
+      </div>

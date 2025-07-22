@@ -1,0 +1,22 @@
+name: BlueMapBannerPoint
+version: "1.0.0"
+main: com.aathoss.bluemapbannerpoint.BlueMapBannerPoint
+api-version: "1.21"
+authors: [Aathoss]
+description: "Plugin pour ajouter automatiquement des marqueurs BlueMap lors du placement de bannières | Plugin to automatically add BlueMap markers when placing banners"
+website: https://github.com/aathoss/bluemap-banner-point
+softdepend: [BlueMap]
+
+commands:
+  bmp:
+    description: "Commandes du plugin BlueMap Banner Point | BlueMap Banner Point plugin commands"
+    usage: /bmp reload
+    permission: bluemapbannerpoint.admin
+
+permissions:
+  bluemapbannerpoint.admin:
+    description: "Permissions d'administration du plugin | Plugin administration permissions"
+    default: op
+  bluemapbannerpoint.banner:
+    description: "Permissions pour placer des bannières avec marqueurs | Permissions to place banners with markers"
+    default: true

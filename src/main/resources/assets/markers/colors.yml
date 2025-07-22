@@ -1,0 +1,20 @@
+# Couleurs disponibles pour les icônes de bannière (noms Minecraft)
+# Utilisez ces noms dans config.yml: marker.icon = "<color>_banner"
+
+available_colors:
+  - "white_banner"        # Blanche
+  - "orange_banner"       # Orange
+  - "magenta_banner"      # Magenta
+  - "light_blue_banner"   # Bleu clair
+  - "yellow_banner"       # Jaune
+  - "lime_banner"         # Vert lime
+  - "pink_banner"         # Rose
+  - "gray_banner"         # Gris
+  - "light_gray_banner"   # Gris clair
+  - "cyan_banner"         # Cyan
+  - "purple_banner"       # Violet
+  - "blue_banner"         # Bleu
+  - "brown_banner"        # Marron
+  - "green_banner"        # Vert
+  - "red_banner"          # Rouge
+  - "black_banner"        # Noir
