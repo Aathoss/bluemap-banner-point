@@ -153,59 +153,73 @@ jobs:
           fi
           echo "✅ Build réussi"
 
-      - name: Création du lien latest
+            - name: Création du lien latest
+        id: create-link
         run: |
           echo "🏷️ Création du lien latest..."
           echo "📋 Version extraite: ${{ steps.version.outputs.version }}"
           echo "📋 Nom du projet: ${{ env.PROJECT_NAME }}"
 
           cd target
-          # Trouver le JAR avec version généré par Maven
-          JAR_FILE="${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar"
-          echo "🔍 Recherche du fichier: $JAR_FILE"
+          echo "📁 Contenu du dossier target:"
+          ls -la *.jar
 
-          if [ ! -f "$JAR_FILE" ]; then
-            echo "❌ Fichier JAR $JAR_FILE non trouvé"
-            echo "📁 Contenu du dossier target:"
-            ls -la *.jar
-            echo "🔍 Tentative de recherche alternative..."
-            # Essayer de trouver le JAR avec un pattern plus large
-            FOUND_JAR=$(ls -t *.jar | head -1)
-            if [ -n "$FOUND_JAR" ]; then
-              echo "✅ JAR trouvé: $FOUND_JAR"
-              JAR_FILE="$FOUND_JAR"
-            else
-              echo "❌ Aucun JAR trouvé"
-              exit 1
-            fi
+          # Trouver le JAR principal (celui généré par Maven avec la version du pom.xml)
+          # Exclure les fichiers "original-*" et "*-shaded"
+          MAIN_JAR=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
+
+          if [ -z "$MAIN_JAR" ]; then
+            echo "❌ Aucun JAR principal trouvé"
+            exit 1
           fi
 
+          echo "✅ JAR principal trouvé: $MAIN_JAR"
+
           # Créer une copie pour latest
-          cp "$JAR_FILE" "${{ env.PROJECT_NAME }}-latest.jar"
+          cp "$MAIN_JAR" "${{ env.PROJECT_NAME }}-latest.jar"
           echo "✅ Lien latest créé: ${{ env.PROJECT_NAME }}-latest.jar"
+
+          # Afficher le nom du JAR principal pour les étapes suivantes
+          echo "JAR_PRINCIPAL=$MAIN_JAR" >> $GITHUB_OUTPUT
 
       - name: Vérification du contenu du JAR
         run: |
           echo "🔍 Vérification du contenu du JAR..."
           cd target
-          jar -tf "${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar" | head -20
+          # Utiliser le JAR principal trouvé précédemment
+          JAR_FILE="${{ steps.create-link.outputs.JAR_PRINCIPAL }}"
+          if [ -z "$JAR_FILE" ]; then
+            # Fallback: chercher le JAR principal
+            JAR_FILE=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
+          fi
+
+          echo "🔍 Vérification du JAR: $JAR_FILE"
+          jar -tf "$JAR_FILE" | head -20
           echo "✅ Contenu du JAR vérifié"
 
       - name: Création du checksum
         run: |
           echo "🔐 Création du checksum..."
           cd target
-          sha256sum "${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar" > "${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar.sha256"
-          echo "✅ Checksum créé"
+          # Utiliser le JAR principal trouvé précédemment
+          JAR_FILE="${{ steps.create-link.outputs.JAR_PRINCIPAL }}"
+          if [ -z "$JAR_FILE" ]; then
+            # Fallback: chercher le JAR principal
+            JAR_FILE=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
+          fi
+
+          echo "🔐 Création du checksum pour: $JAR_FILE"
+          sha256sum "$JAR_FILE" > "$JAR_FILE.sha256"
+          echo "✅ Checksum créé: $JAR_FILE.sha256"
 
       - name: Upload des artefacts de release
         uses: actions/upload-artifact@v3
         with:
           name: release-artifacts
           path: |
-            target/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar
+            target/${{ steps.create-link.outputs.JAR_PRINCIPAL }}
             target/${{ env.PROJECT_NAME }}-latest.jar
-            target/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar.sha256
+            target/${{ steps.create-link.outputs.JAR_PRINCIPAL }}.sha256
           retention-days: 90
 
   # Job de notification de fin de release
