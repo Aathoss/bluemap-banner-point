@@ -16,22 +16,34 @@ jobs:
   notify-release-start:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
       - name: Extraction de la version
         id: version
         run: |
           echo "🔍 Extraction de la version..."
           echo "GITEA_REF: $GITEA_REF"
           echo "GITEA_REF_NAME: $GITEA_REF_NAME"
+          echo "GITEA_REF_NAME (github): ${{ gitea.ref_name }}"
 
-          # Méthode 1: Extraire la version du tag
-          VERSION=${GITEA_REF#refs/tags/}
+          # Méthode 1: Utiliser gitea.ref_name (équivalent à github.ref_name)
+          VERSION="${{ gitea.ref_name }}"
           VERSION=${VERSION#v}
           VERSION=${VERSION#release-}
 
           # Si la version est vide, essayer avec GITEA_REF_NAME
           if [ -z "$VERSION" ]; then
-            echo "⚠️ Version vide depuis GITEA_REF, essai avec GITEA_REF_NAME..."
+            echo "⚠️ Version vide depuis gitea.ref_name, essai avec GITEA_REF_NAME..."
             VERSION=${GITEA_REF_NAME#v}
+            VERSION=${VERSION#release-}
+          fi
+
+          # Si toujours vide, essayer avec GITEA_REF
+          if [ -z "$VERSION" ]; then
+            echo "⚠️ Version vide depuis GITEA_REF_NAME, essai avec GITEA_REF..."
+            VERSION=${GITEA_REF#refs/tags/}
+            VERSION=${VERSION#v}
             VERSION=${VERSION#release-}
           fi
 
@@ -74,16 +86,25 @@ jobs:
           echo "🔍 Extraction de la version..."
           echo "GITEA_REF: $GITEA_REF"
           echo "GITEA_REF_NAME: $GITEA_REF_NAME"
+          echo "GITEA_REF_NAME (github): ${{ gitea.ref_name }}"
 
-          # Méthode 1: Extraire la version du tag
-          VERSION=${GITEA_REF#refs/tags/}
+          # Méthode 1: Utiliser gitea.ref_name (équivalent à github.ref_name)
+          VERSION="${{ gitea.ref_name }}"
           VERSION=${VERSION#v}
           VERSION=${VERSION#release-}
 
           # Si la version est vide, essayer avec GITEA_REF_NAME
           if [ -z "$VERSION" ]; then
-            echo "⚠️ Version vide depuis GITEA_REF, essai avec GITEA_REF_NAME..."
+            echo "⚠️ Version vide depuis gitea.ref_name, essai avec GITEA_REF_NAME..."
             VERSION=${GITEA_REF_NAME#v}
+            VERSION=${VERSION#release-}
+          fi
+
+          # Si toujours vide, essayer avec GITEA_REF
+          if [ -z "$VERSION" ]; then
+            echo "⚠️ Version vide depuis GITEA_REF_NAME, essai avec GITEA_REF..."
+            VERSION=${GITEA_REF#refs/tags/}
+            VERSION=${VERSION#v}
             VERSION=${VERSION#release-}
           fi
 
