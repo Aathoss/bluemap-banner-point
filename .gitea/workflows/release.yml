@@ -153,8 +153,7 @@ jobs:
           fi
           echo "✅ Build réussi"
 
-            - name: Création du lien latest
-        id: create-link
+      - name: Création du lien latest
         run: |
           echo "🏷️ Création du lien latest..."
           echo "📋 Version extraite: ${{ steps.version.outputs.version }}"
@@ -179,19 +178,12 @@ jobs:
           cp "$MAIN_JAR" "${{ env.PROJECT_NAME }}-latest.jar"
           echo "✅ Lien latest créé: ${{ env.PROJECT_NAME }}-latest.jar"
 
-          # Afficher le nom du JAR principal pour les étapes suivantes
-          echo "JAR_PRINCIPAL=$MAIN_JAR" >> $GITHUB_OUTPUT
-
       - name: Vérification du contenu du JAR
         run: |
           echo "🔍 Vérification du contenu du JAR..."
           cd target
-          # Utiliser le JAR principal trouvé précédemment
-          JAR_FILE="${{ steps.create-link.outputs.JAR_PRINCIPAL }}"
-          if [ -z "$JAR_FILE" ]; then
-            # Fallback: chercher le JAR principal
-            JAR_FILE=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
-          fi
+          # Chercher le JAR principal
+          JAR_FILE=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
 
           echo "🔍 Vérification du JAR: $JAR_FILE"
           jar -tf "$JAR_FILE" | head -20
@@ -201,12 +193,8 @@ jobs:
         run: |
           echo "🔐 Création du checksum..."
           cd target
-          # Utiliser le JAR principal trouvé précédemment
-          JAR_FILE="${{ steps.create-link.outputs.JAR_PRINCIPAL }}"
-          if [ -z "$JAR_FILE" ]; then
-            # Fallback: chercher le JAR principal
-            JAR_FILE=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
-          fi
+          # Chercher le JAR principal
+          JAR_FILE=$(ls -t *.jar | grep -v "original-" | grep -v "-shaded" | head -1)
 
           echo "🔐 Création du checksum pour: $JAR_FILE"
           sha256sum "$JAR_FILE" > "$JAR_FILE.sha256"
@@ -217,9 +205,8 @@ jobs:
         with:
           name: release-artifacts
           path: |
-            target/${{ steps.create-link.outputs.JAR_PRINCIPAL }}
-            target/${{ env.PROJECT_NAME }}-latest.jar
-            target/${{ steps.create-link.outputs.JAR_PRINCIPAL }}.sha256
+            target/*.jar
+            target/*.sha256
           retention-days: 90
 
   # Job de notification de fin de release
