@@ -19,10 +19,29 @@ jobs:
       - name: Extraction de la version
         id: version
         run: |
-          # Extraire la version du tag (v1.2.3 -> 1.2.3)
+          echo "🔍 Extraction de la version..."
+          echo "GITEA_REF: $GITEA_REF"
+          echo "GITEA_REF_NAME: $GITEA_REF_NAME"
+
+          # Méthode 1: Extraire la version du tag
           VERSION=${GITEA_REF#refs/tags/}
           VERSION=${VERSION#v}
           VERSION=${VERSION#release-}
+
+          # Si la version est vide, essayer avec GITEA_REF_NAME
+          if [ -z "$VERSION" ]; then
+            echo "⚠️ Version vide depuis GITEA_REF, essai avec GITEA_REF_NAME..."
+            VERSION=${GITEA_REF_NAME#v}
+            VERSION=${VERSION#release-}
+          fi
+
+          # Si toujours vide, extraire depuis pom.xml
+          if [ -z "$VERSION" ]; then
+            echo "⚠️ Version toujours vide, extraction depuis pom.xml..."
+            VERSION=$(grep -o '<version>[^<]*</version>' pom.xml | head -1 | sed 's/<version>\(.*\)<\/version>/\1/')
+          fi
+
+          echo "📋 Version extraite: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "VERSION=$VERSION"
 
@@ -52,10 +71,29 @@ jobs:
       - name: Extraction de la version
         id: version
         run: |
-          # Extraire la version du tag (v1.2.3 -> 1.2.3)
+          echo "🔍 Extraction de la version..."
+          echo "GITEA_REF: $GITEA_REF"
+          echo "GITEA_REF_NAME: $GITEA_REF_NAME"
+
+          # Méthode 1: Extraire la version du tag
           VERSION=${GITEA_REF#refs/tags/}
           VERSION=${VERSION#v}
           VERSION=${VERSION#release-}
+
+          # Si la version est vide, essayer avec GITEA_REF_NAME
+          if [ -z "$VERSION" ]; then
+            echo "⚠️ Version vide depuis GITEA_REF, essai avec GITEA_REF_NAME..."
+            VERSION=${GITEA_REF_NAME#v}
+            VERSION=${VERSION#release-}
+          fi
+
+          # Si toujours vide, extraire depuis pom.xml
+          if [ -z "$VERSION" ]; then
+            echo "⚠️ Version toujours vide, extraction depuis pom.xml..."
+            VERSION=$(grep -o '<version>[^<]*</version>' pom.xml | head -1 | sed 's/<version>\(.*\)<\/version>/\1/')
+          fi
+
+          echo "📋 Version extraite: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "VERSION=$VERSION"
 
@@ -97,13 +135,28 @@ jobs:
       - name: Création du lien latest
         run: |
           echo "🏷️ Création du lien latest..."
+          echo "📋 Version extraite: ${{ steps.version.outputs.version }}"
+          echo "📋 Nom du projet: ${{ env.PROJECT_NAME }}"
+
           cd target
           # Trouver le JAR avec version généré par Maven
           JAR_FILE="${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar"
+          echo "🔍 Recherche du fichier: $JAR_FILE"
+
           if [ ! -f "$JAR_FILE" ]; then
             echo "❌ Fichier JAR $JAR_FILE non trouvé"
+            echo "📁 Contenu du dossier target:"
             ls -la *.jar
-            exit 1
+            echo "🔍 Tentative de recherche alternative..."
+            # Essayer de trouver le JAR avec un pattern plus large
+            FOUND_JAR=$(ls -t *.jar | head -1)
+            if [ -n "$FOUND_JAR" ]; then
+              echo "✅ JAR trouvé: $FOUND_JAR"
+              JAR_FILE="$FOUND_JAR"
+            else
+              echo "❌ Aucun JAR trouvé"
+              exit 1
+            fi
           fi
 
           # Créer une copie pour latest
