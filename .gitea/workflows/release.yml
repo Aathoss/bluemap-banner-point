@@ -59,12 +59,20 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "VERSION=$VERSION"
 
-      - name: Configuration Java ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: "temurin"
-          cache: "maven"
+      - name: Installation de Java ${{ env.JAVA_VERSION }}
+        run: |
+          echo "🔧 Installation de Java ${{ env.JAVA_VERSION }}..."
+          sudo apt-get update
+          sudo apt-get install -y openjdk-${{ env.JAVA_VERSION }}-jdk
+          java -version
+          echo "✅ Java installé"
+
+      - name: Installation de Maven
+        run: |
+          echo "📦 Installation de Maven..."
+          sudo apt-get install -y maven
+          mvn -version
+          echo "✅ Maven installé"
 
       - name: Vérification des traductions
         run: |

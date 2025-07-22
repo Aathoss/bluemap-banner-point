@@ -43,12 +43,20 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Configuration Java ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: "temurin"
-          cache: "maven"
+      - name: Installation de Java ${{ env.JAVA_VERSION }}
+        run: |
+          echo "🔧 Installation de Java ${{ env.JAVA_VERSION }}..."
+          sudo apt-get update
+          sudo apt-get install -y openjdk-${{ env.JAVA_VERSION }}-jdk
+          java -version
+          echo "✅ Java installé"
+
+      - name: Installation de Maven
+        run: |
+          echo "📦 Installation de Maven..."
+          sudo apt-get install -y maven
+          mvn -version
+          echo "✅ Maven installé"
 
       - name: Vérification des traductions
         run: |
@@ -100,11 +108,11 @@ jobs:
         run: |
           if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
             if [ "${{ needs.build-and-test.result }}" == "success" ]; then
-              STATUS="✅ Succès"
+              STATUS="Succès"
               COLOR="3066993"
               EMOJI="🎉"
             else
-              STATUS="❌ Échec"
+              STATUS="Échec"
               COLOR="15158332"
               EMOJI="💥"
             fi

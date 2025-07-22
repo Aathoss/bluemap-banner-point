@@ -38,7 +38,7 @@ jobs:
                   VERSION=${VERSION#release-}
                   DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Tag:** ${{ gitea.ref_name }}\n**Version:** $VERSION\n**Auteur:** ${{ gitea.actor }}\n**Commit:** ${{ gitea.sha }}"
                 else
-                  TITLE="📝 Push sur la branche"
+                  TITLE="Push sur la branche"
                   COLOR="3447003"
                   EMOJI="📝"
                   DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Branche:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n**Commit:** ${{ gitea.sha }}\n**Message:** ${{ gitea.head_commit.message }}"
@@ -47,27 +47,27 @@ jobs:
               "pull_request")
                 case "${{ gitea.event.action }}" in
                   "opened")
-                    TITLE="🔀 Nouvelle Pull Request"
+                    TITLE="Nouvelle Pull Request"
                     COLOR="3447003"
                     EMOJI="🔀"
                     ;;
                   "synchronize")
-                    TITLE="🔄 Pull Request mise à jour"
+                    TITLE="Pull Request mise à jour"
                     COLOR="15844367"
                     EMOJI="🔄"
                     ;;
                   "reopened")
-                    TITLE="🔄 Pull Request réouverte"
+                    TITLE="Pull Request réouverte"
                     COLOR="15844367"
                     EMOJI="🔄"
                     ;;
                   "closed")
                     if [ "${{ gitea.event.pull_request.merged }}" == "true" ]; then
-                      TITLE="✅ Pull Request fusionnée"
+                      TITLE="Pull Request fusionnée"
                       COLOR="3066993"
                       EMOJI="✅"
                     else
-                      TITLE="❌ Pull Request fermée"
+                      TITLE="Pull Request fermée"
                       COLOR="15158332"
                       EMOJI="❌"
                     fi
@@ -78,17 +78,17 @@ jobs:
               "issues")
                 case "${{ gitea.event.action }}" in
                   "opened")
-                    TITLE="🐛 Nouvelle issue"
+                    TITLE="Nouvelle issue"
                     COLOR="15158332"
                     EMOJI="🐛"
                     ;;
                   "closed")
-                    TITLE="✅ Issue fermée"
+                    TITLE="Issue fermée"
                     COLOR="3066993"
                     EMOJI="✅"
                     ;;
                   "reopened")
-                    TITLE="🔄 Issue réouverte"
+                    TITLE="Issue réouverte"
                     COLOR="15844367"
                     EMOJI="🔄"
                     ;;
@@ -98,17 +98,17 @@ jobs:
               "release")
                 case "${{ gitea.event.action }}" in
                   "published")
-                    TITLE="🚀 Nouvelle release publiée"
+                    TITLE="Nouvelle release publiée"
                     COLOR="3066993"
                     EMOJI="🚀"
                     ;;
                   "edited")
-                    TITLE="✏️ Release modifiée"
+                    TITLE="Release modifiée"
                     COLOR="15844367"
                     EMOJI="✏️"
                     ;;
                   "deleted")
-                    TITLE="🗑️ Release supprimée"
+                    TITLE="Release supprimée"
                     COLOR="15158332"
                     EMOJI="🗑️"
                     ;;
@@ -116,7 +116,7 @@ jobs:
                 DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Release:** ${{ gitea.event.release.tag_name }}\n**Titre:** ${{ gitea.event.release.name }}\n**Auteur:** ${{ gitea.actor }}"
                 ;;
               *)
-                TITLE="ℹ️ Événement"
+                TITLE="ℹÉvénement"
                 COLOR="3447003"
                 EMOJI="ℹ️"
                 DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Événement:** $EVENT_TYPE\n**Auteur:** ${{ gitea.actor }}"
