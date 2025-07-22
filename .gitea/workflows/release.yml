@@ -10,10 +10,11 @@ on:
 env:
   PROJECT_NAME: bluemap-banner-point
   JAVA_VERSION: 21
+  MAVEN_OPTS: -Dmaven.repo.local=${{ github.workspace }}/.m2/repository
 
 jobs:
-  # Job de notification de début de release
-  notify-release-start:
+  # Job de validation préliminaire
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout du code
@@ -23,39 +24,33 @@ jobs:
         id: version
         run: |
           echo "🔍 Extraction de la version..."
-          echo "GITEA_REF: $GITEA_REF"
-          echo "GITEA_REF_NAME: $GITEA_REF_NAME"
-          echo "GITEA_REF_NAME (github): ${{ gitea.ref_name }}"
-
-          # Méthode 1: Utiliser gitea.ref_name (équivalent à github.ref_name)
           VERSION="${{ gitea.ref_name }}"
           VERSION=${VERSION#v}
           VERSION=${VERSION#release-}
-
-          # Si la version est vide, essayer avec GITEA_REF_NAME
-          if [ -z "$VERSION" ]; then
-            echo "⚠️ Version vide depuis gitea.ref_name, essai avec GITEA_REF_NAME..."
-            VERSION=${GITEA_REF_NAME#v}
-            VERSION=${VERSION#release-}
-          fi
-
-          # Si toujours vide, essayer avec GITEA_REF
-          if [ -z "$VERSION" ]; then
-            echo "⚠️ Version vide depuis GITEA_REF_NAME, essai avec GITEA_REF..."
-            VERSION=${GITEA_REF#refs/tags/}
-            VERSION=${VERSION#v}
-            VERSION=${VERSION#release-}
-          fi
-
-          # Si toujours vide, extraire depuis pom.xml
-          if [ -z "$VERSION" ]; then
-            echo "⚠️ Version toujours vide, extraction depuis pom.xml..."
-            VERSION=$(grep -o '<version>[^<]*</version>' pom.xml | head -1 | sed 's/<version>\(.*\)<\/version>/\1/')
-          fi
-
           echo "📋 Version extraite: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "VERSION=$VERSION"
+
+      - name: Validation du pom.xml
+        run: |
+          echo "🔍 Validation du pom.xml..."
+          if [ ! -f "pom.xml" ]; then
+            echo "❌ pom.xml manquant"
+            exit 1
+          fi
+          echo "✅ pom.xml trouvé"
+
+      - name: Validation des fichiers de traduction
+        run: |
+          echo "🔍 Validation des fichiers de traduction..."
+          if [ ! -f "check_translations.py" ]; then
+            echo "❌ Script de vérification des traductions manquant"
+            exit 1
+          fi
+          if [ ! -d "src/main/resources/lang" ]; then
+            echo "❌ Répertoire de traductions manquant"
+            exit 1
+          fi
+          echo "✅ Fichiers de traduction trouvés"
 
       - name: Notification de début de release
         run: |
@@ -65,17 +60,17 @@ jobs:
             -d '{
               "embeds": [{
                 "title": "🚀 Début de la release",
-                "description": "**Projet:** ${{ env.PROJECT_NAME }}\n**Version:** ${{ steps.version.outputs.version }}\n**Tag:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}",
+                "description": "**Projet:** ${{ env.PROJECT_NAME }}\n**Version:** ${{ steps.version.outputs.version }}\n**Tag:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n\n🔍 Validation en cours...",
                 "color": 15844367,
                 "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
               }]
             }'
           fi
 
-  # Job principal de build et packaging
-  build-release:
+  # Job de build
+  build:
     runs-on: ubuntu-latest
-    needs: notify-release-start
+    needs: validate
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
@@ -83,55 +78,24 @@ jobs:
       - name: Extraction de la version
         id: version
         run: |
-          echo "🔍 Extraction de la version..."
-          echo "GITEA_REF: $GITEA_REF"
-          echo "GITEA_REF_NAME: $GITEA_REF_NAME"
-          echo "GITEA_REF_NAME (github): ${{ gitea.ref_name }}"
-
-          # Méthode 1: Utiliser gitea.ref_name (équivalent à github.ref_name)
           VERSION="${{ gitea.ref_name }}"
           VERSION=${VERSION#v}
           VERSION=${VERSION#release-}
-
-          # Si la version est vide, essayer avec GITEA_REF_NAME
-          if [ -z "$VERSION" ]; then
-            echo "⚠️ Version vide depuis gitea.ref_name, essai avec GITEA_REF_NAME..."
-            VERSION=${GITEA_REF_NAME#v}
-            VERSION=${VERSION#release-}
-          fi
-
-          # Si toujours vide, essayer avec GITEA_REF
-          if [ -z "$VERSION" ]; then
-            echo "⚠️ Version vide depuis GITEA_REF_NAME, essai avec GITEA_REF..."
-            VERSION=${GITEA_REF#refs/tags/}
-            VERSION=${VERSION#v}
-            VERSION=${VERSION#release-}
-          fi
-
-          # Si toujours vide, extraire depuis pom.xml
-          if [ -z "$VERSION" ]; then
-            echo "⚠️ Version toujours vide, extraction depuis pom.xml..."
-            VERSION=$(grep -o '<version>[^<]*</version>' pom.xml | head -1 | sed 's/<version>\(.*\)<\/version>/\1/')
-          fi
-
-          echo "📋 Version extraite: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "VERSION=$VERSION"
 
-      - name: Installation de Java ${{ env.JAVA_VERSION }}
-        run: |
-          echo "🔧 Installation de Java ${{ env.JAVA_VERSION }}..."
-          sudo apt-get update
-          sudo apt-get install -y openjdk-${{ env.JAVA_VERSION }}-jdk
-          java -version
-          echo "✅ Java installé"
+      - name: Setup Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+          cache: "maven"
 
-      - name: Installation de Maven
-        run: |
-          echo "📦 Installation de Maven..."
-          sudo apt-get install -y maven
-          mvn -version
-          echo "✅ Maven installé"
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
       - name: Vérification des traductions
         run: |
@@ -143,67 +107,73 @@ jobs:
           fi
           echo "✅ Traductions OK"
 
+      - name: Compilation
+        run: |
+          echo "🔨 Compilation..."
+          mvn clean compile
+          if [ $? -ne 0 ]; then
+            echo "❌ Erreur de compilation"
+            exit 1
+          fi
+          echo "✅ Compilation réussie"
+
       - name: Build du package final
         run: |
           echo "📦 Build du package final..."
-          mvn clean package -DskipTests
+          mvn package -DskipTests
           if [ $? -ne 0 ]; then
             echo "❌ Erreur de build"
             exit 1
           fi
           echo "✅ Build réussi"
 
-      - name: Création du lien latest
+      - name: Validation du JAR
         run: |
-          echo "🏷️ Création du lien latest..."
-          echo "📋 Version extraite: ${{ steps.version.outputs.version }}"
-          echo "📋 Nom du projet: ${{ env.PROJECT_NAME }}"
-
+          echo "🔍 Validation du JAR..."
           cd target
-          echo "📁 Contenu du dossier target:"
-          ls -la *.jar
 
-          # Trouver le JAR principal (celui généré par Maven avec la version du pom.xml)
-          # Exclure les fichiers "original-*" et "*-shaded"
-          MAIN_JAR=$(ls -t *.jar | grep --invert-match "original-" | grep --invert-match "-shaded" | head -1)
-
-          if [ -z "$MAIN_JAR" ]; then
-            echo "❌ Aucun JAR principal trouvé"
+          # Vérifier que le JAR existe
+          JAR_FILE=$(ls bluemap-banner-point-*.jar 2>/dev/null | head -1)
+          if [ -z "$JAR_FILE" ]; then
+            echo "❌ Aucun JAR trouvé"
             exit 1
           fi
 
-          echo "✅ JAR principal trouvé: $MAIN_JAR"
+          # Vérifier que le JAR est valide
+          if ! jar -tf "$JAR_FILE" > /dev/null 2>&1; then
+            echo "❌ JAR corrompu"
+            exit 1
+          fi
 
-          # Créer une copie pour latest
-          cp "$MAIN_JAR" "${{ env.PROJECT_NAME }}-latest.jar"
-          echo "✅ Lien latest créé: ${{ env.PROJECT_NAME }}-latest.jar"
+          # Vérifier la présence de plugin.yml
+          if ! jar -tf "$JAR_FILE" | grep -q "plugin.yml"; then
+            echo "❌ plugin.yml manquant dans le JAR"
+            exit 1
+          fi
 
-            - name: Vérification du contenu du JAR
+          echo "✅ JAR validé: $JAR_FILE"
+
+      - name: Création du lien latest
         run: |
-          echo "🔍 Vérification du contenu du JAR..."
+          echo "🏷️ Création du lien latest..."
           cd target
-          # Chercher le JAR principal
-          JAR_FILE=$(ls -t *.jar | grep --invert-match "original-" | grep --invert-match "-shaded" | head -1)
+          JAR_FILE=$(ls bluemap-banner-point-*.jar | head -1)
+          cp "$JAR_FILE" "${{ env.PROJECT_NAME }}-latest.jar"
+          echo "✅ Lien latest créé"
 
-          echo "🔍 Vérification du JAR: $JAR_FILE"
-          jar -tf "$JAR_FILE" | head -20
-          echo "✅ Contenu du JAR vérifié"
-
-            - name: Création du checksum
+      - name: Création des checksums
         run: |
-          echo "🔐 Création du checksum..."
+          echo "🔐 Création des checksums..."
           cd target
-          # Chercher le JAR principal
-          JAR_FILE=$(ls -t *.jar | grep --invert-match "original-" | grep --invert-match "-shaded" | head -1)
-
-          echo "🔐 Création du checksum pour: $JAR_FILE"
-          sha256sum "$JAR_FILE" > "$JAR_FILE.sha256"
-          echo "✅ Checksum créé: $JAR_FILE.sha256"
+          for jar in bluemap-banner-point-*.jar; do
+            sha256sum "$jar" > "$jar.sha256"
+            echo "✅ Checksum créé pour $jar"
+          done
 
       - name: Upload des artefacts de release
         uses: actions/upload-artifact@v3
         with:
-          name: release-artifacts
+          name: release-artifacts-${{ steps.version.outputs.version }}
           path: |
             target/*.jar
             target/*.sha256
@@ -212,13 +182,13 @@ jobs:
   # Job de notification de fin de release
   notify-release-end:
     runs-on: ubuntu-latest
-    needs: build-release
+    needs: [validate, build]
     if: always()
     steps:
       - name: Extraction de la version
         id: version
         run: |
-          VERSION=${GITEA_REF#refs/tags/}
+          VERSION="${{ gitea.ref_name }}"
           VERSION=${VERSION#v}
           VERSION=${VERSION#release-}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -226,16 +196,16 @@ jobs:
       - name: Notification de fin de release
         run: |
           if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
-            if [ "${{ needs.build-release.result }}" == "success" ]; then
+            if [ "${{ needs.build.result }}" == "success" ]; then
               STATUS="✅ Release réussie"
               COLOR="3066993"
               EMOJI="🎉"
-              DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Version:** ${{ steps.version.outputs.version }}\n**Tag:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n\n📦 Package JAR créé avec succès"
+              DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Version:** ${{ steps.version.outputs.version }}\n**Tag:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n\n📦 Package JAR créé avec succès\n🔐 Checksums générés"
             else
               STATUS="❌ Release échouée"
               COLOR="15158332"
               EMOJI="💥"
-              DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Version:** ${{ steps.version.outputs.version }}\n**Tag:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n\n❌ Erreur lors de la création du package"
+              DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Version:** ${{ steps.version.outputs.version }}\n**Tag:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n\n❌ Erreur lors de la création du package\n\n**Détails:**\n- Validation: ${{ needs.validate.result }}\n- Build: ${{ needs.build.result }}"
             fi
 
             curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
