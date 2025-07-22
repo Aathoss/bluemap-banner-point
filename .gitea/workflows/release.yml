@@ -90,6 +90,14 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
+      - name: Setup Maven
+        run: |
+          echo "📦 Installation de Maven..."
+          sudo apt-get update
+          sudo apt-get install -y maven
+          mvn -version
+          echo "✅ Maven installé"
+
       - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
