@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/thomas/bluemap-banner-point)
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1+-green.svg)](https://www.minecraft.net/)
 [![BlueMap](https://img.shields.io/badge/BlueMap-2.7.4+-orange.svg)](https://github.com/BlueMap-Minecraft/BlueMap)
-[![Java](https://img.shields.io/badge/Java-17+-red.svg)](https://openjdk.java.net/)
+[![Java](https://img.shields.io/badge/Java-21+-red.svg)](https://openjdk.java.net/)
 
 Un plugin Minecraft qui ajoute automatiquement des marqueurs BlueMap lors du placement de bannières, avec des icônes SVG personnalisées et colorées.
 
@@ -22,7 +22,7 @@ Un plugin Minecraft qui ajoute automatiquement des marqueurs BlueMap lors du pla
 - **Minecraft** : 1.21.1 ou supérieur
 - **Paper/Spigot** : Serveur Paper ou Spigot
 - **BlueMap** : Version 2.7.4 ou supérieure
-- **Java** : Version 17 ou supérieure
+- **Java** : Version 21 ou supérieure
 
 ## 🚀 Installation
 

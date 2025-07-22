@@ -9,7 +9,7 @@ on:
 
 env:
   PROJECT_NAME: bluemap-banner-point
-  JAVA_VERSION: 17
+  JAVA_VERSION: 21
 
 jobs:
   # Job de notification de début de release
