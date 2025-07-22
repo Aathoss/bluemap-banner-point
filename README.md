@@ -19,9 +19,9 @@ Un plugin Minecraft qui ajoute automatiquement des marqueurs BlueMap lors du pla
 
 ## 📋 Prérequis
 
-- **Minecraft** : 1.21.1 ou supérieur
-- **Paper/Spigot** : Serveur Paper ou Spigot
-- **BlueMap** : Version 2.7.4 ou supérieure
+- **Minecraft** : 1.20.6 - 1.21.8 (comme BlueMap 5.9)
+- **Serveur Minecraft** : Compatible avec Bukkit, Spigot, Paper, et autres forks
+- **BlueMap** : Version 2.7.4+ (BlueMap 5.9+)
 - **Java** : Version 21 ou supérieure
 
 ## 🚀 Installation
@@ -30,6 +30,19 @@ Un plugin Minecraft qui ajoute automatiquement des marqueurs BlueMap lors du pla
 2. **Placez** le fichier dans le dossier `plugins/` de votre serveur
 3. **Redémarrez** votre serveur
 4. **Configurez** le plugin via le fichier `plugins/BlueMapBannerPoint/config.yml`
+
+## 🔧 Compatibilité
+
+Ce plugin est compatible avec tous les serveurs Minecraft basés sur l'API Bukkit :
+
+- ✅ **Bukkit** - Serveur vanilla Bukkit
+- ✅ **Spigot** - Fork optimisé de Bukkit
+- ✅ **Paper** - Fork optimisé de Spigot
+- ✅ **Purpur** - Fork optimisé de Paper
+- ✅ **Fabric** - Avec mods de compatibilité Bukkit
+- ✅ **Forge** - Avec mods de compatibilité Bukkit
+
+Le plugin utilise uniquement l'API Bukkit standard, garantissant une compatibilité maximale.
 
 ## ⚙️ Configuration
 
@@ -102,6 +115,13 @@ Toutes les couleurs de bannières Minecraft sont supportées :
 
 ## 📝 Changelog
 
+### Version 1.0.1
+
+- 🔄 **Compatibilité étendue** : Support de tous les serveurs Bukkit/Spigot/Paper
+- 🆕 **Minecraft 1.20.6+** : Support étendu comme BlueMap 5.9 (1.20.6 - 1.21.8)
+- 🔧 **API Spigot** : Migration vers l'API Spigot pour une compatibilité maximale
+- 📈 **Audience élargie** : Compatible avec plus de serveurs et versions
+
 ### Version 1.0.0
 
 - ✨ Première version stable
@@ -129,7 +149,7 @@ Ce projet est sous licence GNU General Public License v3.0. Voir le fichier [LIC
 ## 🙏 Remerciements
 
 - [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap) - Pour l'excellent système de cartographie
-- [Paper](https://papermc.io/) - Pour l'API Minecraft
+- [Spigot](https://www.spigotmc.org/) - Pour l'API Minecraft standard
 - La communauté Minecraft pour les retours et suggestions
 
 ## 📞 Support

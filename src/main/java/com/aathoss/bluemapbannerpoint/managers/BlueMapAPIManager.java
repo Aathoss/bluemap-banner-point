@@ -53,7 +53,6 @@ public class BlueMapAPIManager {
         try {
             Optional<BlueMapAPI> apiOptional = BlueMapAPI.getInstance();
             if (apiOptional.isEmpty()) {
-                plugin.getLogger().warning(Messages.get("system.bluemap_not_available"));
                 return;
             }
 

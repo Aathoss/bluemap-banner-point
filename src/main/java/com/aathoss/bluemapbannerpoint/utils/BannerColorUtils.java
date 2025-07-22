@@ -1,8 +1,6 @@
 package com.aathoss.bluemapbannerpoint.utils;
 
 import com.aathoss.bluemapbannerpoint.BlueMapBannerPoint;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;
@@ -228,8 +226,7 @@ public class BannerColorUtils {
         if (item != null && item.hasItemMeta() && item.getItemMeta() instanceof BannerMeta) {
             BannerMeta meta = (BannerMeta) item.getItemMeta();
             if (meta.hasDisplayName()) {
-                Component displayName = meta.displayName();
-                return PlainTextComponentSerializer.plainText().serialize(displayName);
+                return meta.getDisplayName();
             }
         }
         return null;
@@ -237,15 +234,11 @@ public class BannerColorUtils {
 
     /**
      * Récupère le nom personnalisé d'une bannière depuis un BlockState
+     * Note: Les blocs Banner placés dans le monde n'ont pas de nom personnalisé
      */
     public static String getBannerCustomName(BlockState blockState) {
-        if (blockState instanceof Banner) {
-            Banner banner = (Banner) blockState;
-            Component customName = banner.customName();
-            if (customName != null) {
-                return PlainTextComponentSerializer.plainText().serialize(customName);
-            }
-        }
+        // Les blocs Banner placés dans le monde n'ont pas de nom personnalisé
+        // Seuls les ItemStack peuvent avoir un nom personnalisé
         return null;
     }
 }

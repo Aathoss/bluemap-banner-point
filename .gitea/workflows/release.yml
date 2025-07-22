@@ -94,25 +94,21 @@ jobs:
           fi
           echo "✅ Build réussi"
 
-      - name: Renommage du JAR avec version
+      - name: Création du lien latest
         run: |
-          echo "🏷️ Renommage du JAR avec version..."
+          echo "🏷️ Création du lien latest..."
           cd target
-          # Trouver le JAR généré
-          JAR_FILE=$(ls *.jar | head -1)
-          if [ -z "$JAR_FILE" ]; then
-            echo "❌ Aucun fichier JAR trouvé"
+          # Trouver le JAR avec version généré par Maven
+          JAR_FILE="${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar"
+          if [ ! -f "$JAR_FILE" ]; then
+            echo "❌ Fichier JAR $JAR_FILE non trouvé"
+            ls -la *.jar
             exit 1
           fi
 
-          # Renommer avec la version
-          NEW_NAME="${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar"
-          mv "$JAR_FILE" "$NEW_NAME"
-          echo "✅ JAR renommé: $NEW_NAME"
-
-          # Créer un lien vers latest
-          cp "$NEW_NAME" "${{ env.PROJECT_NAME }}-latest.jar"
-          echo "✅ Lien latest créé"
+          # Créer une copie pour latest
+          cp "$JAR_FILE" "${{ env.PROJECT_NAME }}-latest.jar"
+          echo "✅ Lien latest créé: ${{ env.PROJECT_NAME }}-latest.jar"
 
       - name: Vérification du contenu du JAR
         run: |
@@ -121,15 +117,6 @@ jobs:
           jar -tf "${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar" | head -20
           echo "✅ Contenu du JAR vérifié"
 
-      - name: Upload des artefacts de release
-        uses: actions/upload-artifact@v3
-        with:
-          name: release-artifacts
-          path: |
-            target/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar
-            target/${{ env.PROJECT_NAME }}-latest.jar
-          retention-days: 90
-
       - name: Création du checksum
         run: |
           echo "🔐 Création du checksum..."
@@ -137,11 +124,14 @@ jobs:
           sha256sum "${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar" > "${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar.sha256"
           echo "✅ Checksum créé"
 
-      - name: Upload du checksum
+      - name: Upload des artefacts de release
         uses: actions/upload-artifact@v3
         with:
-          name: release-checksums
-          path: target/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar.sha256
+          name: release-artifacts
+          path: |
+            target/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar
+            target/${{ env.PROJECT_NAME }}-latest.jar
+            target/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.jar.sha256
           retention-days: 90
 
   # Job de notification de fin de release

@@ -1,7 +1,5 @@
 package com.aathoss.bluemapbannerpoint.utils;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.block.Banner;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.ItemStack;
@@ -27,12 +25,14 @@ public class BannerNameExtractor {
             return null;
         }
 
-        Component displayName = meta.displayName();
-        if (displayName == null) {
+        // Utiliser getDisplayName() au lieu de l'API Adventure
+        String displayName = meta.getDisplayName();
+        if (displayName == null || displayName.isEmpty()) {
             return null;
         }
 
-        return PlainTextComponentSerializer.plainText().serialize(displayName).trim();
+        // Supprimer les codes de couleur Minecraft
+        return stripColorCodes(displayName).trim();
     }
 
     /**
@@ -48,5 +48,21 @@ public class BannerNameExtractor {
             return null;
         }
         return null;
+    }
+
+    /**
+     * Supprime les codes de couleur Minecraft d'une chaîne
+     * @param text Le texte avec potentiellement des codes de couleur
+     * @return Le texte sans codes de couleur
+     */
+    private static String stripColorCodes(String text) {
+        if (text == null) {
+            return null;
+        }
+
+        // Supprimer les codes de couleur § et les codes hexadécimaux
+        return text.replaceAll("§[0-9a-fk-or]", "")
+                   .replaceAll("§x(§[0-9a-f]){6}", "")
+                   .replaceAll("§#([0-9a-fA-F]){6}", "");
     }
 }

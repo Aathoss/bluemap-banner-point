@@ -1,0 +1,10 @@
+name: BlueMapBannerPoint
+version: "1.0.1"
+main: com.aathoss.bluemapbannerpoint.BlueMapBannerPoint
+api-version: "1.20"
+authors: [Aathoss]
+description: "Plugin pour ajouter automatiquement des marqueurs BlueMap lors du placement de bannières | Plugin to automatically add BlueMap markers when placing banners"
+website: https://github.com/aathoss/bluemap-banner-point
+softdepend: [BlueMap]
+# Compatible avec tous les serveurs Bukkit/Spigot/Paper
+# Supporte Minecraft 1.20.6 - 1.21.8 (comme BlueMap 5.9)

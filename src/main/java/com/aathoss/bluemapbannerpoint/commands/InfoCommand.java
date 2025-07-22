@@ -49,9 +49,12 @@ public class InfoCommand extends BaseCommand {
     }
 
     private void sendInfoMessage(CommandSender sender) {
+        String version = plugin.getDescription().getVersion();
+        String author = plugin.getDescription().getAuthors().get(0);
+
         sender.sendMessage(Messages.get("commands.info.title"));
-        sender.sendMessage(Messages.get("commands.info.version", new Object[]{plugin.getPluginMeta().getVersion()}));
-        sender.sendMessage(Messages.get("commands.info.author", new Object[]{plugin.getPluginMeta().getAuthors().get(0)}));
+        sender.sendMessage(Messages.get("commands.info.version", new Object[]{version}));
+        sender.sendMessage(Messages.get("commands.info.author", new Object[]{author}));
         sender.sendMessage(Messages.get("commands.info.debug_mode", new Object[]{
             plugin.getConfigManager().isDebugEnabled() ? Messages.get("commands.info.enabled") : Messages.get("commands.info.disabled")}));
         sender.sendMessage(Messages.get("commands.info.auto_remove", new Object[]{
