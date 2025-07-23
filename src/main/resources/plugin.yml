@@ -1,5 +1,5 @@
 name: BlueMapBannerPoint
-version: "1.0.0"
+version: "1.0.2"
 main: com.aathoss.bluemapbannerpoint.BlueMapBannerPoint
 api-version: "1.21"
 authors: [Aathoss]

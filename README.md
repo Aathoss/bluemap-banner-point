@@ -115,22 +115,7 @@ Toutes les couleurs de bannières Minecraft sont supportées :
 
 ## 📝 Changelog
 
-### Version 1.0.1
-
-- 🔄 **Compatibilité étendue** : Support de tous les serveurs Bukkit/Spigot/Paper
-- 🆕 **Minecraft 1.20.6+** : Support étendu comme BlueMap 5.9 (1.20.6 - 1.21.8)
-- 🔧 **API Spigot** : Migration vers l'API Spigot pour une compatibilité maximale
-- 📈 **Audience élargie** : Compatible avec plus de serveurs et versions
-
-### Version 1.0.0
-
-- ✨ Première version stable
-- 🎨 Icônes SVG personnalisées pour toutes les couleurs de bannières
-- 🌍 Support multilingue (français/anglais)
-- ⚙️ Configuration flexible
-- 🔧 Commandes d'administration
-- 🗑️ Nettoyage automatique des marqueurs
-- 🎭 Mode furtif (sneak)
+Consultez le [CHANGELOG.md](CHANGELOG.md) pour voir l'historique complet des versions et des changements.
 
 ## 🤝 Contribution
 
