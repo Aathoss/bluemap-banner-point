@@ -19,8 +19,19 @@ public class ReloadMarkersCommand extends BaseCommand {
             return true;
         }
 
+        // Recharger les marqueurs
         plugin.getBlueMapManager().reloadMarkers();
-        sender.sendMessage(Messages.get("commands.reload_markers.success"));
+
+        // Afficher le message de succès avec la langue actuelle
+        String successMessage = Messages.get("commands.reload_markers.success");
+        sender.sendMessage(successMessage);
+
+        // Afficher des informations supplémentaires en mode debug
+        if (plugin.getConfigManager().isDebugEnabled()) {
+            int totalMarkers = plugin.getBlueMapManager().getTotalMarkers();
+            sender.sendMessage(Messages.get("debug.markers_reloaded", new Object[]{totalMarkers}));
+        }
+
         return true;
     }
 

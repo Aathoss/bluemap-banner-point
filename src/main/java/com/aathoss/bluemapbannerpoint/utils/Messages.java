@@ -63,6 +63,14 @@ public class Messages {
         }
     }
 
+    /**
+     * Recharge les fichiers de langue pour s'assurer que les changements sont pris en compte
+     */
+    public static void reloadLanguageFiles() {
+        languageFiles.clear();
+        loadLanguages();
+    }
+
     public static String get(String key) {
         return get(key, currentLanguage);
     }

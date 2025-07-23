@@ -61,5 +61,8 @@ public class ConfigManager {
         config.set("language", language);
         plugin.saveConfig();
         Messages.setLanguage(language);
+
+        // Recharger les messages pour s'assurer que le changement de langue est pris en compte
+        Messages.reloadLanguageFiles();
     }
 }

@@ -32,8 +32,17 @@ public class LanguageCommand extends BaseCommand {
             return true;
         }
 
+        // Afficher la langue actuelle pour confirmation
+        String currentLanguage = plugin.getConfigManager().getLanguage();
+        sender.sendMessage(Messages.get("commands.language.current", new Object[]{currentLanguage}));
+
+        // Changer la langue
         plugin.getConfigManager().setLanguage(language);
-        sender.sendMessage(Messages.get("commands.language.changed", new Object[]{language}));
+
+        // Afficher le message de confirmation avec la nouvelle langue
+        String changedMessage = Messages.get("commands.language.changed", new Object[]{language});
+        sender.sendMessage(changedMessage);
+
         return true;
     }
 
