@@ -27,21 +27,32 @@ jobs:
             # Déterminer le type d'événement et les informations
             EVENT_TYPE="${{ gitea.event_name }}"
 
+            # Fonction pour nettoyer les messages
+            clean_message() {
+              local msg="$1"
+              if [ -z "$msg" ]; then
+                echo "Aucun message"
+              else
+                echo "$msg" | sed 's/"/\\"/g' | head -c 100
+              fi
+            }
+
             case "$EVENT_TYPE" in
               "push")
                 if [[ "${{ gitea.ref }}" == refs/tags/* ]]; then
-                  TITLE="🏷️ Nouveau tag créé"
+                  TITLE="Nouveau tag créé : ${{ gitea.ref_name }}"
                   COLOR="15844367"
                   EMOJI="🏷️"
-                  VERSION=${GITEA_REF#refs/tags/}
-                  VERSION=${VERSION#v}
-                  VERSION=${VERSION#release-}
-                  DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Tag:** ${{ gitea.ref_name }}\n**Version:** $VERSION\n**Auteur:** ${{ gitea.actor }}\n**Commit:** ${{ gitea.sha }}"
+                  VERSION="${{ gitea.ref_name }}"
+                  VERSION="${VERSION#v}"
+                  VERSION="${VERSION#release-}"
+                  DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Tag:** ${{ gitea.ref_name }}\n**Version:** $VERSION\n**Auteur:** ${{ gitea.actor }}\n**Commit:** \`${{ gitea.sha }}\`"
                 else
-                  TITLE="Push sur la branche"
+                  TITLE="Push sur la branche : ${{ gitea.ref_name }}"
                   COLOR="3447003"
                   EMOJI="📝"
-                  DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Branche:** ${{ gitea.ref_name }}\n**Auteur:** ${{ gitea.actor }}\n**Commit:** ${{ gitea.sha }}\n**Message:** ${{ gitea.head_commit.message }}"
+                  COMMIT_MSG=$(clean_message "${{ gitea.head_commit.message }}")
+                  DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Branche:** \`${{ gitea.ref_name }}\`\n**Auteur:** ${{ gitea.actor }}\n**Commit:** \`${{ gitea.sha }}\`\n**Message:** $COMMIT_MSG"
                 fi
                 ;;
               "pull_request")
@@ -73,7 +84,8 @@ jobs:
                     fi
                     ;;
                 esac
-                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**PR:** #${{ gitea.event.pull_request.number }} - ${{ gitea.event.pull_request.title }}\n**Auteur:** ${{ gitea.actor }}\n**Branche:** ${{ gitea.event.pull_request.head.ref }} → ${{ gitea.event.pull_request.base.ref }}"
+                PR_TITLE=$(clean_message "${{ gitea.event.pull_request.title }}")
+                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**PR:** #${{ gitea.event.pull_request.number }} - $PR_TITLE\n**Auteur:** ${{ gitea.actor }}\n**Branche:** \`${{ gitea.event.pull_request.head.ref }}\` → \`${{ gitea.event.pull_request.base.ref }}\`"
                 ;;
               "issues")
                 case "${{ gitea.event.action }}" in
@@ -93,7 +105,12 @@ jobs:
                     EMOJI="🔄"
                     ;;
                 esac
-                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Issue:** #${{ gitea.event.issue.number }} - ${{ gitea.event.issue.title }}\n**Auteur:** ${{ gitea.actor }}\n**Labels:** ${{ join(gitea.event.issue.labels.*.name, ', ') }}"
+                ISSUE_TITLE=$(clean_message "${{ gitea.event.issue.title }}")
+                ISSUE_LABELS="${{ join(gitea.event.issue.labels.*.name, ', ') }}"
+                if [ -z "$ISSUE_LABELS" ]; then
+                  ISSUE_LABELS="Aucun label"
+                fi
+                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Issue:** #${{ gitea.event.issue.number }} - $ISSUE_TITLE\n**Auteur:** ${{ gitea.actor }}\n**Labels:** $ISSUE_LABELS"
                 ;;
               "release")
                 case "${{ gitea.event.action }}" in
@@ -113,27 +130,65 @@ jobs:
                     EMOJI="🗑️"
                     ;;
                 esac
-                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Release:** ${{ gitea.event.release.tag_name }}\n**Titre:** ${{ gitea.event.release.name }}\n**Auteur:** ${{ gitea.actor }}"
+                RELEASE_NAME=$(clean_message "${{ gitea.event.release.name }}")
+                DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Release:** \`${{ gitea.event.release.tag_name }}\`\n**Titre:** $RELEASE_NAME\n**Auteur:** ${{ gitea.actor }}"
                 ;;
               *)
-                TITLE="ℹÉvénement"
+                TITLE="Événement"
                 COLOR="3447003"
                 EMOJI="ℹ️"
                 DESCRIPTION="**Projet:** ${{ env.PROJECT_NAME }}\n**Événement:** $EVENT_TYPE\n**Auteur:** ${{ gitea.actor }}"
                 ;;
             esac
 
+            # Ajouter des champs supplémentaires selon le contexte
+            FIELDS=""
+            if [ "$EVENT_TYPE" = "push" ] && [ "${{ gitea.ref }}" != refs/tags/* ]; then
+              FIELDS=',"fields": [
+                {
+                  "name": "🔗 Repository",
+                  "value": "[Voir le commit](${{ gitea.server_url }}/${{ gitea.repository }}/commit/${{ gitea.sha }})",
+                  "inline": true
+                },
+                {
+                  "name": "📊 Branche",
+                  "value": "[Voir la branche](${{ gitea.server_url }}/${{ gitea.repository }}/src/branch/${{ gitea.ref_name }})",
+                  "inline": true
+                }
+              ]'
+            elif [ "$EVENT_TYPE" = "pull_request" ]; then
+              FIELDS=',"fields": [
+                {
+                  "name": "🔗 Pull Request",
+                  "value": "[Voir la PR](${{ gitea.server_url }}/${{ gitea.repository }}/pulls/${{ gitea.event.pull_request.number }})",
+                  "inline": true
+                }
+              ]'
+            elif [ "$EVENT_TYPE" = "issues" ]; then
+              FIELDS=',"fields": [
+                {
+                  "name": "🔗 Issue",
+                  "value": "[Voir l'\''issue](${{ gitea.server_url }}/${{ gitea.repository }}/issues/${{ gitea.event.issue.number }})",
+                  "inline": true
+                }
+              ]'
+            fi
+
             curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
             -d '{
               "embeds": [{
-                "title": "'"$EMOJI $TITLE"'",
+                "title": "'"$EMOJI $TITLE "'",
                 "description": "'"$DESCRIPTION"'",
                 "color": '"$COLOR"',
                 "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'",
                 "footer": {
-                  "text": "BlueMap Banner Point"
-                }
+                  "text": "'"${{ env.PROJECT_NAME }}"'"
+                }'"$FIELDS"'
               }]
             }'
+
+            echo "✅ Notification Discord envoyée pour l'événement: $EVENT_TYPE"
+          else
+            echo "⚠️ Webhook Discord non configuré, skip..."
           fi
