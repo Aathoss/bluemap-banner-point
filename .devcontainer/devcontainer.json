@@ -1,0 +1,66 @@
+{
+  "name": "BlueMap Banner Point - Java Development",
+  "image": "mcr.microsoft.com/devcontainers/java:21-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21",
+      "installMaven": "true",
+      "installGradle": "false"
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,readonly",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind,readonly",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.git-credentials,target=/home/vscode/.git-credentials,type=bind,readonly"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-maven",
+        "vscjava.vscode-java-debug",
+        "vscjava.vscode-java-test",
+        "vscjava.vscode-java-dependency",
+        "redhat.java",
+        "ms-vscode.vscode-json",
+        "yzhang.markdown-all-in-one",
+        "ms-vscode.vscode-yaml",
+        "eamodio.gitlens",
+        "ms-vscode.vscode-git"
+      ],
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+        "java.format.settings.profile": "GoogleStyle",
+        "java.saveActions.organizeImports": true,
+        "java.completion.importOrder": [
+          "java",
+          "javax",
+          "org",
+          "com"
+        ]
+      }
+    }
+  },
+  "postCreateCommand": "git config --global core.fileMode false && mvn clean install -DskipTests",
+  "forwardPorts": [
+    8080,
+    5005,
+    25565
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "Application",
+      "onAutoForward": "notify"
+    },
+    "5005": {
+      "label": "Java Debug",
+      "onAutoForward": "silent"
+    },
+    "25565": {
+      "label": "Minecraft Server",
+      "onAutoForward": "silent"
+    }
+  }
+}

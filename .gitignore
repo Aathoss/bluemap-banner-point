@@ -79,7 +79,7 @@ out/
 !**/src/test/**/out/
 
 # VS Code
-.vscode/
+# .vscode/  # Commenté pour permettre le partage des configurations devcontainer
 *.code-workspace
 
 # OS generated files
